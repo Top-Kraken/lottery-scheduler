@@ -13,14 +13,14 @@ export default {
         // Documentation: https://docs.chain.link/docs/vrf-contracts/
         KeyHash: {
           mainnet: "",
-          testnet: "",
+          testnet: "0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4",
         },
       },
     },
     Ticket: {
       Price: {
-        mainnet: 5,
-        testnet: 1,
+        mainnet: 2,
+        testnet: 2,
       },
       Precision: {
         mainnet: 2,

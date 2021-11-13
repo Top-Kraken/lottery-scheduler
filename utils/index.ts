@@ -1,5 +1,32 @@
 import moment from "moment";
+import BigNumber from "bignumber.js";
+import { CoinGeckoClient } from "coingecko-api-v3";
 
+/**
+ * Get the ticket price, based on current network, as $LuChow
+ * Used by 'start-lottery' Hardhat script, only.
+ */
+export const getTicketPrice = async(
+  usd: number,
+  precision: number
+): Promise<string> => {
+  const client = new CoinGeckoClient({
+    timeout: 10000,
+    autoRetry: true,
+  });
+  const simplePrice = await client.simplePrice({
+    vs_currencies: "usd", 
+    ids: "lunachow"
+  });
+  
+  const price: BigNumber = new BigNumber(simplePrice.lunachow.usd.toString());
+
+  // Compute the ticket price (denominated in $Cake), to the required USD eq. value.
+  const ticketPrice: BigNumber = new BigNumber(usd).div(price);
+
+  // Return the ticket price, up to `n` decimals.
+  return ticketPrice.toFixed(precision);
+};
 /**
  * Get the next lottery 'endTime', based on current date, as UTC.
  * Used by 'start-lottery' Hardhat script, only.
