@@ -54,7 +54,7 @@ const main = async () => {
             console.log(message);
             logger.info({ message });
         } catch (error) {
-            const message = `[${new Date().toISOString()}] network=${networkName} message='${error.message}' signer=${
+            const message = `[${new Date().toISOString()}] network=${networkName} message='${error}' signer=${
               operator.address
             }`;
             console.error(message);
