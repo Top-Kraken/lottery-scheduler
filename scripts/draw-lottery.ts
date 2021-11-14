@@ -1,11 +1,10 @@
 import { ethers, network } from "hardhat";
 import lotteryABI from "../abi/LunaChowLottery.json";
-import randomGeneratorABI from "../abi/RandomNumberGenerator.json";
 import config from "../config";
 import logger from "../utils/logger";
 
 /**
- * Close lottery.
+ * Draw lottery.
  */
 const main = async () => {
   // Get network data from Hardhat config (see hardhat.config.ts).
@@ -30,28 +29,20 @@ const main = async () => {
       const contract = await ethers.getContractAt(lotteryABI, config.Lottery[networkName]);
 
       // Get network data for running script.
-      const [_blockNumber, _gasPrice, _lotteryId, _randomGenerator] = await Promise.all([
+      const [_blockNumber, _gasPrice, _lotteryId] = await Promise.all([
         ethers.provider.getBlockNumber(),
         ethers.provider.getGasPrice(),
         contract.currentLotteryId(),
-        contract.randomGenerator(),
       ]);
 
-      // Verify Chainlink VRF Key Hash is set and correct, according to Chainlink documentation, for a given network.
-      const randomGeneratorContract = await ethers.getContractAt(randomGeneratorABI, _randomGenerator);
-      const keyHash = await randomGeneratorContract.keyHash();
-      if (keyHash !== config.Chainlink.VRF.KeyHash[networkName]) {
-        throw new Error("Invalid keyHash on RandomGenerator contract.");
-      }
-
       // Create, sign and broadcast transaction.
-      const tx = await contract.closeLottery(_lotteryId, {
+      const tx = await contract.drawFinalNumberAndMakeLotteryClaimable(_lotteryId, true, {
         from: operator.address,
         gasLimit: 500000,
         gasPrice: _gasPrice.mul(2),
       });
 
-      const message = `[${new Date().toISOString()}] network=${networkName} block=${_blockNumber} message='Closed lottery #${_lotteryId}' hash=${
+      const message = `[${new Date().toISOString()}] network=${networkName} block=${_blockNumber} message='Drawed lottery #${_lotteryId}' hash=${
         tx?.hash
       } signer=${operator.address}`;
       console.log(message);
